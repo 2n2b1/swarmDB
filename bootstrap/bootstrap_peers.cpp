@@ -15,15 +15,19 @@
 #include <utils/blacklist.hpp>
 #include <utils/crypto.hpp>
 #include <utils/http_get.hpp>
+#include <utils/ESR_Peers_List.h>
 #include <bootstrap/bootstrap_peers.hpp>
 #include <fstream>
 #include <sstream>
 #include <json/json.h>
+#include <algorithm>
+#include <iostream>
 
 using namespace bzn;
 
 
-bool bootstrap_peers::fetch_peers_from_file(const std::string& filename)
+bool
+bootstrap_peers::fetch_peers_from_file(const std::string& filename)
 {
     std::ifstream file(filename);
     if (file.fail())
@@ -44,6 +48,30 @@ bootstrap_peers::fetch_peers_from_url(const std::string& url)
     std::string peers = bzn::utils::http::sync_get(url);
 
     LOG(info) << "Downloaded peer list from " << url;
+
+    std::stringstream stream;
+    stream << peers;
+
+    return ingest_json(stream);
+}
+
+
+bool
+bootstrap_peers::fetch_peers_from_contract(const bzn::uuid_t& swarm_id)
+{
+    auto peer_urls = bzn::utils::ESR::get_peer_urls(swarm_id);
+    bzn::json_message peers;
+    for (const auto& url : peer_urls)
+    {
+        bzn::peer_address_t peer_info{bzn::utils::ESR::get_peer_info(swarm_id, url)};
+        Json::Value json_url;
+        json_url["host"] = peer_info.name;
+        json_url["http_port"] = peer_info.http_port;
+        json_url["name"] = peer_info.name;
+        json_url["port"] = peer_info.port;
+        json_url["uuid"] = peer_info.uuid;
+        peers.append(json_url);
+    }
 
     std::stringstream stream;
     stream << peers;

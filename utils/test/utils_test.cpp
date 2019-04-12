@@ -19,6 +19,7 @@
 #include <boost/beast/core/detail/base64.hpp>
 #include <utils/blacklist.hpp>
 #include <utils/crypto.hpp>
+#include <utils/ESR_Peers_List.h>
 
 using namespace::testing;
 
@@ -346,4 +347,33 @@ TEST(util_test, test_that_verifying_a_signature_with_empty_inputs_will_fail_grac
     EXPECT_FALSE(bzn::utils::crypto::verify_signature( "", signature, valid_uuid));
     EXPECT_FALSE(bzn::utils::crypto::verify_signature( public_pem, "", valid_uuid));
     EXPECT_FALSE(bzn::utils::crypto::verify_signature( public_pem, signature, ""));
+}
+
+
+TEST(util_test, test_that_ESR_returns_peers_list)
+{
+    bzn::uuid_t swarm_id{"426c757a656c6c65537761726d"}; // hex for "BluzelleSwarm"
+    //bzn::peers_list_t accepted_peers{{"host", 1234, 4321, "name", "<uuid>"}};
+    auto peer_urls = bzn::utils::ESR::get_peer_urls(swarm_id);
+
+    std::cout << "Peers:\n";
+    for (const auto& url : peer_urls)
+    {
+        std::cout << "\t" << url << "\n";
+    }
+
+    std::cout << "\n";
+
+    for(const auto& result : peer_urls)
+    {
+        std::cout << "\n";
+        std::cout << "[BluzelleSwarm] : [" << result << "]\n";
+        auto peer_info = bzn::utils::ESR::get_peer_info(swarm_id, result);
+        std::cout << "     name:[" << peer_info.name << "]\n";
+        std::cout << "     host:[" << peer_info.host << "]\n";
+        std::cout << "http_port:[" << peer_info.http_port << "]\n";
+        std::cout << "     port:[" << peer_info.port << "]\n";
+        std::cout << "     uuid:[" << peer_info.uuid << "]\n";
+
+    }
 }

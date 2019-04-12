@@ -94,11 +94,11 @@ init_logging(const bzn::options& options)
 
 
 bool
-init_peers(bzn::bootstrap_peers& peers, const std::string& peers_file, const std::string& peers_url)
+init_peers(bzn::bootstrap_peers& peers, const std::string& peers_file, const std::string& peers_url, const bzn::uuid_t& swarm_id)
 {
-    if (peers_file.empty() && peers_url.empty())
+    if (peers_file.empty() && peers_url.empty() && swarm_id.empty())
     {
-        LOG(error) << "Bootstrap peers must be specified options (bootstrap_file or bootstrap_url)";
+        LOG(error) << "Bootstrap peers must be specified options (bootstrap_file, bootstrap_url or swarm_id)";
         return false;
     }
 
@@ -110,6 +110,11 @@ init_peers(bzn::bootstrap_peers& peers, const std::string& peers_file, const std
     if (!peers_url.empty())
     {
         peers.fetch_peers_from_url(peers_url);
+    }
+
+    if (!swarm_id.empty())
+    {
+        peers.fetch_peers_from_contract(swarm_id);
     }
 
     if (peers.get_peers().empty())
@@ -244,7 +249,7 @@ main(int argc, const char* argv[])
         }
 
         bzn::bootstrap_peers peers(options->peer_validation_enabled());
-        if (!init_peers(peers, options->get_bootstrap_peers_file(), options->get_bootstrap_peers_url()))
+        if (!init_peers(peers, options->get_bootstrap_peers_file(), options->get_bootstrap_peers_url(), options->get_swarm_id()))
             throw std::runtime_error("Bootstrap peers initialization failed.");
 
         auto io_context = std::make_shared<bzn::asio::io_context>();

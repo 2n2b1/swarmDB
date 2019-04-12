@@ -148,3 +148,12 @@ TEST(bootstrap_net_test, DISABLED_test_fetch_data_with_protocol)
     ASSERT_TRUE(bootstrap_peers.fetch_peers_from_url(sample_peers_url_with_protocol));
     ASSERT_EQ(bootstrap_peers.get_peers().size(), 1U);
 }
+
+
+TEST(bootstrap_net_test, test_fetch_peers_from_solidity)
+{
+    bzn::bootstrap_peers bootstrap_peers;
+    bzn::uuid_t swarm_id{"426c757a656c6c65537761726d"}; // hex for "BluzelleSwarm"
+    ASSERT_TRUE(bootstrap_peers.fetch_peers_from_contract(swarm_id));
+    ASSERT_EQ(bootstrap_peers.get_peers().size(), 7U);
+}

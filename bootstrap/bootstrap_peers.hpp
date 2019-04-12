@@ -30,6 +30,8 @@ namespace bzn
 
         bool fetch_peers_from_url(const std::string& url) override;
 
+        bool fetch_peers_from_contract(const bzn::uuid_t& swarm_id) override;
+
         const bzn::peers_list_t& get_peers() const override;
 
     private:

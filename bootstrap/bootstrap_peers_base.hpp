@@ -53,6 +53,13 @@ namespace bzn
         virtual bool fetch_peers_from_url(const std::string& url) = 0;
 
         /**
+         * Given a swarm id, fetch the peer info for the peers in that swarm
+         * @param swarm_id
+         * @return
+         */
+        virtual bool fetch_peers_from_contract(const bzn::uuid_t& swarm_id) = 0;
+
+        /**
          * @return a reference to the initial set of peers
          */
         virtual const peers_list_t& get_peers() const = 0;
